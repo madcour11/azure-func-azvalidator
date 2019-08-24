@@ -6,7 +6,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace core_azvalidator
 {
@@ -14,20 +14,56 @@ namespace core_azvalidator
     {
         [FunctionName("alphabetValidator")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "api/validation/alphabetMembership")] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("alphabetValidator function has processed a request.");
-
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            string input = await new StreamReader(req.Body).ReadToEndAsync();
+            //Reasoning: Might not need to check null on a primative string, but the non-DotNetCore version of this controller
+            //was giving me null values for backslashes and doublequotes
+            if (input == null)
+            {
+                //Error
+                return new BadRequestObjectResult("Please include valid input characters, only.");
+            }
+            //Reasoning: If there are fewer letters in the string than in the alphabet, it fails
+            else if (String.IsNullOrWhiteSpace(input) || input.Length < 26)
+            {
+                //Ok
+                return new OkObjectResult(false);
+            }
+            var hasAllLetters = false;
+             try
+            {
+                //Reasoning: Normalize the input that this works with a set data structure
+                var loweredInput = input.ToLower();
+                var alphabetSet = new SortedSet<char>();
+                foreach (var c in input)
+                {
+                    if (Char.IsLetter(c))
+                    {
+                        alphabetSet.Add(c);
+                    }
+                    //Reasoning: If the alphabet tracking set reaches 26 distinct letters, the whole alphabet was in the string
+                    //and we can stop iterating over the input early
+                    if (alphabetSet.Count == 26)
+                    {
+                        hasAllLetters = true;
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //Error: Input processing failed
+                var errorResponse = new StatusCodeResult(500);
+                //Reasoning: would like to have logged the exception somehow here
+                 //errorResponse.Reason($"Could not check the string. \n It failed with error:{ex.Message}" );
+                return errorResponse;
+            }
+            
+            //Ok
+            return (ActionResult)new OkObjectResult(hasAllLetters);
         }
     }
 }
