@@ -17,7 +17,7 @@ namespace core_azvalidator
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("alphabetValidator function processed a request.");
+            log.LogInformation("alphabetValidator function has processed a request.");
 
             string name = req.Query["name"];
 
