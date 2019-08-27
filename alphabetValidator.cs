@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace core_azvalidator
 {
@@ -17,14 +18,15 @@ namespace core_azvalidator
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "api/validation/alphabetMembership")] HttpRequest req,
             ILogger log)
         {
+            var input = "";
             log.LogInformation("alphabetValidator function has processed a request.");
-            string input = await new StreamReader(req.Body).ReadToEndAsync();
-            //Reasoning: Might not need to check null on a primative string, but the non-DotNetCore version of this controller
-            //was giving me null values for backslashes and doublequotes
+            string reqBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic body = JsonConvert.DeserializeObject(reqBody);
+            input = body?.input;
             if (input == null)
             {
                 //Error
-                return new BadRequestObjectResult("Please include valid input characters, only.");
+                return new BadRequestObjectResult("Please provide a valid string.");
             }
             //Reasoning: If there are fewer letters in the string than in the alphabet, it fails
             else if (String.IsNullOrWhiteSpace(input) || input.Length < 26)
