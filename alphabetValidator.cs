@@ -15,7 +15,7 @@ namespace core_azvalidator
     {
         [FunctionName("alphabetValidator")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "api/validation/alphabetMembership")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "api/azValidator/validate")] HttpRequest req,
             ILogger log)
         {
             var input = "";
