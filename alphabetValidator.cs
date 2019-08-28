@@ -59,8 +59,6 @@ namespace core_azvalidator
             {
                 //Error: Input processing failed
                 var errorResponse = new StatusCodeResult(500);
-                //Reasoning: would like to have logged the exception somehow here
-                 //errorResponse.Reason($"Could not check the string. \n It failed with error:{ex.Message}" );
                 return errorResponse;
             }
             
