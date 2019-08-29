@@ -60,6 +60,8 @@ namespace core_azvalidator
             {
                 //Error: Input processing failed
                 var errorResponse = new StatusCodeResult(500);
+                Console.WriteLine($"alphabetValidator failed with exception:{ex.Message}");
+                Console.WriteLine(input is string);
                 return errorResponse;
             }
             
