@@ -1,6 +1,6 @@
 # Azvalidator Azure Function App
 
-##Description
+## Description
 Azvalidator is a RESTful web service, deployed as an Azure Function app,that checks for existence of the alphabet in a string. 
 It returns a Boolean result indicating whether at least one instance of each letter in the English alphabet was found in the input string. 
 The validation is case-insensitive, so an instance of an uppercase or lowercase letter only counts once.
