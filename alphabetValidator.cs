@@ -22,8 +22,9 @@ namespace core_azvalidator
             log.LogInformation("alphabetValidator function has processed a request.");
             string reqBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic body = JsonConvert.DeserializeObject(reqBody);
+
             input = body?.input;
-            if (input == null)
+            if (input == null || !(input is string))
             {
                 //Error
                 return new BadRequestObjectResult("Please provide a valid string.");
